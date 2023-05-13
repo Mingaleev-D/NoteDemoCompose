@@ -1,7 +1,8 @@
-package com.example.notedemocompose.screen
+package com.example.notedemocompose.ui.screen
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -29,13 +30,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.notedemocompose.R
-import com.example.notedemocompose.components.NoteButton
-import com.example.notedemocompose.components.NoteInputText
+import com.example.notedemocompose.ui.components.NoteButton
+import com.example.notedemocompose.ui.components.NoteInputText
 import com.example.notedemocompose.data.NoteDataSource
+import com.example.notedemocompose.data.common.fromDate
 import com.example.notedemocompose.model.NoteModel
 import java.time.format.DateTimeFormatter
 
@@ -53,6 +56,7 @@ fun NoteScreen(notes: List<NoteModel>,
 
    var title by remember { mutableStateOf("") }
    var description by remember { mutableStateOf("") }
+   val context = LocalContext.current
 
    Column(modifier = Modifier.padding(6.dp)) {
       TopAppBar(title = {
@@ -89,15 +93,23 @@ fun NoteScreen(notes: List<NoteModel>,
          NoteButton(text = stringResource(id = R.string.save),
                     onClick = {
                        if (title.isNotEmpty() && description.isNotEmpty()) {
+
+                          onAddNotes(NoteModel(title = title,
+                                               description = description))
+
                           title = ""
                           description = ""
+
+                          Toast
+                             .makeText(context, "Note added", Toast.LENGTH_SHORT)
+                             .show()
                        }
                     })
       }
       Divider(modifier = Modifier.padding(10.dp))
       LazyColumn {
          items(notes) { note ->
-            NoteRow(note = note, onNoteClicked = { })
+            NoteRow(note = note, onNoteClicked = { onRemoveNote(note) })
          }
       }
    }
@@ -117,7 +129,7 @@ fun NoteRow(modifier: Modifier = Modifier,
            tonalElevation = 8.dp
    ) {
       Column(modifier
-                .clickable { }
+                .clickable { onNoteClicked(note) }
                 .padding(horizontal = 14.dp, vertical = 6.dp),
              horizontalAlignment = Alignment.Start
       ) {
@@ -129,7 +141,7 @@ fun NoteRow(modifier: Modifier = Modifier,
               style = MaterialTheme.typography.titleSmall,
               color = Color.Black
          )
-         Text(text = note.entryDate.format(DateTimeFormatter.ofPattern("EEE, d MMM")),
+         Text(text = fromDate(note.entryDate.time),
               style = MaterialTheme.typography.titleSmall,
               color = Color.Black
          )

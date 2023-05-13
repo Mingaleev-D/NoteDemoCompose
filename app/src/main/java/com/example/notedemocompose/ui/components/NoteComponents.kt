@@ -1,4 +1,4 @@
-package com.example.notedemocompose.components
+package com.example.notedemocompose.ui.components
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
